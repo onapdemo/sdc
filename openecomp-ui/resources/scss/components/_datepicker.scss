@@ -1,0 +1,67 @@
+.customized-date-picker {
+	margin-bottom: 24px;
+	display: flex;
+	.date-picker-label {
+		&.required {
+			&:before {
+				content: "*";
+				color: $red;
+				margin: 0 4px 0 0;
+			}
+		}
+
+		@extend .body-2-semibold;
+		color: $dark-gray;
+		margin-bottom: 8px;
+	}
+	.react-datepicker__input-container {
+		flex: 1;
+		cursor: pointer;
+	}
+	.datepicker-custom-input {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		height: 30px;
+		border-radius: 2px;
+		color: $dark-gray;
+		border: 1px solid $light-gray;
+		padding: 6px 8px 6px 12px;
+		.clear-input {
+				margin-left: auto;
+				margin-right: 8px;
+				.svg-icon {
+					fill: transparent;
+					height: 8px;
+					width: 8px;
+				}
+			}
+		&:hover {
+			border-color: $gray;
+			.clear-input {
+				.svg-icon {
+					fill: initial;
+				}
+			}
+		}
+		.datepicker-text {
+			cursor: pointer;
+			@extend .body-1;
+			&.placeholder {
+				color: $light-gray;
+			}
+
+		}
+		.calendar-input {
+			fill: $light-gray;
+		}
+		.svg-icon-wrapper.calendar {
+			.svg-icon {
+				fill: $dark-gray;
+				width: 17px;
+				height: 17px;
+			}
+		}
+	}
+}
+

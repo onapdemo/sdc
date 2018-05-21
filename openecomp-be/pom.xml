@@ -1,0 +1,274 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>openecomp-sdc</name>
+    <groupId>org.openecomp.sdc</groupId>
+    <artifactId>openecomp-sdc</artifactId>
+    <packaging>pom</packaging>
+
+    <url>http://maven.apache.org</url>
+
+    <parent>
+        <groupId>org.openecomp.sdc</groupId>
+        <artifactId>sdc-onboarding</artifactId>
+        <version>1.1.1-SNAPSHOT</version>
+        <relativePath>../onboarding</relativePath>
+    </parent>
+
+    <modules>
+        <module>/api</module>
+        <module>/lib</module>
+        <module>/configuration</module>
+        <module>/tools/swagger-ui</module>
+        <module>/tools/migration/1702_to_1707_zusammen</module>
+        <module>/tools/zusammen-tools</module>
+        <module>/backend</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- ================================================== -->
+            <!-- Set the JDK compiler version.                      -->
+            <!-- ================================================== -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${mvn.compiler.version}</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <source>${java.source}</source>
+                    <target>${java.target}</target>
+                </configuration>
+            </plugin>
+            <!-- blackduck maven plugin -->
+            <!--
+            <plugin>
+                <groupId>com.blackducksoftware.integration</groupId>
+                <artifactId>hub-maven-plugin</artifactId>
+                <version>${mvn.hub.version}</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <target>${project.basedir}</target>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>create-bdio-file</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>createHubOutput</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${mvn.license.version}</version>
+                <configuration>
+                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                    <processStartTag>============LICENSE_START=======================================================</processStartTag>
+                    <processEndTag>============LICENSE_END=========================================================</processEndTag>
+                    <sectionDelimiter>================================================================================</sectionDelimiter>
+                    <licenseName>apache_v2</licenseName>
+                    <inceptionYear>2017</inceptionYear>
+                    <organizationName>AT&amp;T Intellectual Property. All rights reserved.</organizationName>
+                    <projectName>SDC</projectName>
+                    <canUpdateCopyright>true</canUpdateCopyright>
+                    <canUpdateDescription>true</canUpdateDescription>
+                    <canUpdateLicense>true</canUpdateLicense>
+                    <emptyLineAfterHeader>true</emptyLineAfterHeader>
+                    <verbose>false</verbose>
+                    <includes>
+                        <include>**/*.java</include>
+                        <include>**/*.js</include>
+                        <include>**/*.ts</include>
+                    </includes>
+                    <roots>
+                        <root>src</root>
+                        <root>app</root>
+                        <root>server-mock</root>
+                        <root>typings</root>
+                    </roots>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>first</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <!--phase>process-sources</phase-->
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains the execution data. -->
+
+                            <dataFile>target/jacoco.exec</dataFile>
+                            <!-- Sets the output directory for the code coverage report. -->
+                            <outputDirectory>target/jacoco-ut</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Jacoco consolidation Report -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- Execute an ant task within maven -->
+                                <echo message="Generating JaCoCo Reports"/>
+                                <taskdef name="report" classname="org.jacoco.ant.ReportTask">
+                                    <classpath
+                                            path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar"/>
+                                </taskdef>
+                                <mkdir dir="${basedir}/target/coverage-report"/>
+                                <report>
+                                    <executiondata>
+                                        <fileset dir="${basedir}">
+                                            <include name="**/*jacoco.exec"/>
+                                        </fileset>
+                                    </executiondata>
+                                    <structure name="jacoco-multi Coverage Project">
+                                        <group name="jacoco-multi">
+                                            <classfiles>
+                                                <fileset dir="${basedir}">
+                                                    <include name="**/target/classes/**"/>
+                                                </fileset>
+                                            </classfiles>
+                                            <sourcefiles encoding="UTF-8">
+                                                <fileset dir="${basedir}">
+                                                    <include name="**/target/generated-sources/**"/>
+                                                </fileset>
+                                            </sourcefiles>
+                                        </group>
+                                    </structure>
+                                    <html destdir="${basedir}/target/coverage-report/html"/>
+                                    <xml destfile="${basedir}/target/coverage-report/coverage-report.xml"/>
+                                    <csv destfile="${basedir}/target/coverage-report/coverage-report.csv"/>
+                                </report>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.ant</artifactId>
+                        <version>${jacoco.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <!--Added to resolve blackduck operational risks for indirect dependencies referred -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons.beanutils.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.beust/jcommander -->
+            <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>${jcommander.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpasyncclient -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpasyncclient</artifactId>
+                <version>${httpasyncclient.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl -->
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb.impl.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.beanshell/bsh -->
+            <dependency>
+                <groupId>org.beanshell</groupId>
+                <artifactId>bsh</artifactId>
+                <version>${bsh.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/commons-digester/commons-digester -->
+            <dependency>
+                <groupId>commons-digester</groupId>
+                <artifactId>commons-digester</artifactId>
+                <version>${commons.digester.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.fasterxml/classmate -->
+            <dependency>
+                <groupId>com.fasterxml</groupId>
+                <artifactId>classmate</artifactId>
+                <version>${classmate.version}</version>
+            </dependency>
+	    <!--1702 -->
+            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${groovy.version}</version>
+            </dependency>
+             <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>${janino.version}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
+

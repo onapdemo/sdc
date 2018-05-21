@@ -1,0 +1,10 @@
+{
+  "port": 9000,
+  "proxyCatalogTarget": null,
+  "proxyTarget": null,
+  "bundles": {
+    "bundle": ["sdc-app/sdc.app.jsx"],
+    "punch-outs": ["sdc-app/punch-outs.js"],
+    "heat-validation": ["sdc-app/heatValidation.app.jsx"]
+  }
+}

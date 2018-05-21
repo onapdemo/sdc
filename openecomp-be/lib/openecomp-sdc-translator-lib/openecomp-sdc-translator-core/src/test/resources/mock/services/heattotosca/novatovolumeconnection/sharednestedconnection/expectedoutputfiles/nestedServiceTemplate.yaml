@@ -1,0 +1,494 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0
+metadata:
+  template_name: nested
+imports:
+- openecomp_heat_index:
+    file: openecomp-heat/_index.yml
+- GlobalSubstitutionTypes:
+    file: GlobalSubstitutionTypesServiceTemplate.yaml
+node_types:
+  org.openecomp.resource.vfc.nodes.heat.cmaui:
+    derived_from: org.openecomp.resource.vfc.nodes.heat.nova.Server
+topology_template:
+  inputs:
+    cmaui_names:
+      hidden: false
+      immutable: false
+      type: list
+      description: CMAUI1, CMAUI2 server names
+      entry_schema:
+        type: string
+    p1:
+      hidden: false
+      immutable: false
+      type: string
+      description: UID of OAM network
+    cmaui_image:
+      hidden: false
+      immutable: false
+      type: string
+      description: Image for CMAUI server
+    cmaui_flavor:
+      hidden: false
+      immutable: false
+      type: string
+      description: Flavor for CMAUI server
+    cmaui_volume_param2:
+      hidden: false
+      immutable: false
+      type: string
+      description: nova server id
+    security_group_name:
+      hidden: false
+      immutable: false
+      type: list
+      description: CMAUI1, CMAUI2 server names
+      entry_schema:
+        type: string
+    availability_zone_0:
+      label: availabilityzone name
+      hidden: false
+      immutable: false
+      type: string
+      description: availabilityzone name
+    shared_vol1:
+      hidden: false
+      immutable: false
+      type: string
+      description: nova server id
+    cmaui_oam_ips:
+      hidden: false
+      immutable: false
+      type: string
+  node_templates:
+    cmaui_port_2:
+      type: org.openecomp.resource.cp.nodes.heat.network.neutron.Port
+      properties:
+        replacement_policy: AUTO
+        ip_requirements:
+        - ip_version: 4
+          ip_count_required:
+            is_required: true
+          floating_ip_count_required:
+            is_required: false
+        security_groups:
+        - get_input: security_group_name
+        fixed_ips:
+        - ip_address:
+            get_input:
+            - cmaui_oam_ips
+            - 0
+        mac_requirements:
+          mac_count_required:
+            is_required: false
+        network:
+          get_input: p1
+      requirements:
+      - binding:
+          capability: tosca.capabilities.network.Bindable
+          node: server_cmaui2
+          relationship: tosca.relationships.network.BindsTo
+    server_cmaui2:
+      type: org.openecomp.resource.vfc.nodes.heat.cmaui
+      properties:
+        flavor:
+          get_input: cmaui_flavor
+        availability_zone:
+          get_input: availability_zone_0
+        image:
+          get_input: cmaui_image
+        name:
+          get_input:
+          - cmaui_names
+          - 0
+    server_cmaui1:
+      type: org.openecomp.resource.vfc.nodes.heat.cmaui
+      properties:
+        flavor:
+          get_input: cmaui_flavor
+        availability_zone:
+          get_input: availability_zone_0
+        image:
+          get_input: cmaui_image
+        name:
+          get_input:
+          - cmaui_names
+          - 0
+    cmaui_port_1:
+      type: org.openecomp.resource.cp.nodes.heat.network.neutron.Port
+      properties:
+        replacement_policy: AUTO
+        ip_requirements:
+        - ip_version: 4
+          ip_count_required:
+            is_required: true
+          floating_ip_count_required:
+            is_required: false
+        security_groups:
+        - get_input: security_group_name
+        fixed_ips:
+        - ip_address:
+            get_input:
+            - cmaui_oam_ips
+            - 0
+        mac_requirements:
+          mac_count_required:
+            is_required: false
+        network:
+          get_input: p1
+      requirements:
+      - binding:
+          capability: tosca.capabilities.network.Bindable
+          node: server_cmaui1
+          relationship: tosca.relationships.network.BindsTo
+  groups:
+    nested_group:
+      type: org.openecomp.groups.heat.HeatStack
+      properties:
+        heat_file: ../Artifacts/nested.yml
+        description: cmaui server template for vMMSC
+      members:
+      - cmaui_port_2
+      - server_cmaui2
+      - server_cmaui1
+      - cmaui_port_1
+  substitution_mappings:
+    node_type: org.openecomp.resource.abstract.nodes.heat.nested
+    capabilities:
+      memory.usage_server_cmaui2:
+      - server_cmaui2
+      - memory.usage
+      scalable_server_cmaui1:
+      - server_cmaui1
+      - scalable
+      scalable_server_cmaui2:
+      - server_cmaui2
+      - scalable
+      cpu.delta_server_cmaui2:
+      - server_cmaui2
+      - cpu.delta
+      disk.device.write.requests.rate_server_cmaui2:
+      - server_cmaui2
+      - disk.device.write.requests.rate
+      cpu.delta_server_cmaui1:
+      - server_cmaui1
+      - cpu.delta
+      disk.iops_server_cmaui1:
+      - server_cmaui1
+      - disk.iops
+      host_server_cmaui1:
+      - server_cmaui1
+      - host
+      disk.device.write.requests.rate_server_cmaui1:
+      - server_cmaui1
+      - disk.device.write.requests.rate
+      disk.iops_server_cmaui2:
+      - server_cmaui2
+      - disk.iops
+      disk.device.write.bytes.rate_server_cmaui2:
+      - server_cmaui2
+      - disk.device.write.bytes.rate
+      disk.device.write.bytes.rate_server_cmaui1:
+      - server_cmaui1
+      - disk.device.write.bytes.rate
+      memory.usage_server_cmaui1:
+      - server_cmaui1
+      - memory.usage
+      host_server_cmaui2:
+      - server_cmaui2
+      - host
+      disk.write.requests_server_cmaui2:
+      - server_cmaui2
+      - disk.write.requests
+      memory_server_cmaui1:
+      - server_cmaui1
+      - memory
+      memory_server_cmaui2:
+      - server_cmaui2
+      - memory
+      disk.write.bytes_server_cmaui1:
+      - server_cmaui1
+      - disk.write.bytes
+      disk.write.bytes_server_cmaui2:
+      - server_cmaui2
+      - disk.write.bytes
+      feature_server_cmaui2:
+      - server_cmaui2
+      - feature
+      feature_server_cmaui1:
+      - server_cmaui1
+      - feature
+      disk.root.size_server_cmaui1:
+      - server_cmaui1
+      - disk.root.size
+      network.outgoing.bytes_cmaui_port_2:
+      - cmaui_port_2
+      - network.outgoing.bytes
+      network.outgoing.bytes_cmaui_port_1:
+      - cmaui_port_1
+      - network.outgoing.bytes
+      disk.write.requests_server_cmaui1:
+      - server_cmaui1
+      - disk.write.requests
+      cpu_server_cmaui2:
+      - server_cmaui2
+      - cpu
+      cpu_server_cmaui1:
+      - server_cmaui1
+      - cpu
+      disk.device.read.requests_server_cmaui2:
+      - server_cmaui2
+      - disk.device.read.requests
+      disk.device.read.requests_server_cmaui1:
+      - server_cmaui1
+      - disk.device.read.requests
+      network.incoming.packets_cmaui_port_2:
+      - cmaui_port_2
+      - network.incoming.packets
+      disk.allocation_server_cmaui2:
+      - server_cmaui2
+      - disk.allocation
+      disk.allocation_server_cmaui1:
+      - server_cmaui1
+      - disk.allocation
+      disk.read.bytes.rate_server_cmaui1:
+      - server_cmaui1
+      - disk.read.bytes.rate
+      disk.read.bytes.rate_server_cmaui2:
+      - server_cmaui2
+      - disk.read.bytes.rate
+      network.incoming.packets_cmaui_port_1:
+      - cmaui_port_1
+      - network.incoming.packets
+      binding_server_cmaui2:
+      - server_cmaui2
+      - binding
+      disk.read.requests_server_cmaui2:
+      - server_cmaui2
+      - disk.read.requests
+      binding_server_cmaui1:
+      - server_cmaui1
+      - binding
+      disk.read.requests_server_cmaui1:
+      - server_cmaui1
+      - disk.read.requests
+      disk.latency_server_cmaui1:
+      - server_cmaui1
+      - disk.latency
+      disk.latency_server_cmaui2:
+      - server_cmaui2
+      - disk.latency
+      memory.resident_server_cmaui1:
+      - server_cmaui1
+      - memory.resident
+      memory.resident_server_cmaui2:
+      - server_cmaui2
+      - memory.resident
+      binding_cmaui_port_1:
+      - cmaui_port_1
+      - binding
+      binding_cmaui_port_2:
+      - cmaui_port_2
+      - binding
+      disk.device.write.bytes_server_cmaui2:
+      - server_cmaui2
+      - disk.device.write.bytes
+      disk.device.write.bytes_server_cmaui1:
+      - server_cmaui1
+      - disk.device.write.bytes
+      disk.capacity_server_cmaui1:
+      - server_cmaui1
+      - disk.capacity
+      disk.capacity_server_cmaui2:
+      - server_cmaui2
+      - disk.capacity
+      network.outgoing.bytes.rate_cmaui_port_2:
+      - cmaui_port_2
+      - network.outgoing.bytes.rate
+      os_server_cmaui1:
+      - server_cmaui1
+      - os
+      network.outgoing.bytes.rate_cmaui_port_1:
+      - cmaui_port_1
+      - network.outgoing.bytes.rate
+      network.incoming.bytes_cmaui_port_2:
+      - cmaui_port_2
+      - network.incoming.bytes
+      network.incoming.bytes_cmaui_port_1:
+      - cmaui_port_1
+      - network.incoming.bytes
+      os_server_cmaui2:
+      - server_cmaui2
+      - os
+      disk.device.read.bytes.rate_server_cmaui1:
+      - server_cmaui1
+      - disk.device.read.bytes.rate
+      disk.write.bytes.rate_server_cmaui1:
+      - server_cmaui1
+      - disk.write.bytes.rate
+      disk.write.bytes.rate_server_cmaui2:
+      - server_cmaui2
+      - disk.write.bytes.rate
+      disk.device.write.requests_server_cmaui1:
+      - server_cmaui1
+      - disk.device.write.requests
+      disk.device.write.requests_server_cmaui2:
+      - server_cmaui2
+      - disk.device.write.requests
+      network.incoming.packets.rate_cmaui_port_1:
+      - cmaui_port_1
+      - network.incoming.packets.rate
+      network.incoming.packets.rate_cmaui_port_2:
+      - cmaui_port_2
+      - network.incoming.packets.rate
+      feature_cmaui_port_1:
+      - cmaui_port_1
+      - feature
+      feature_cmaui_port_2:
+      - cmaui_port_2
+      - feature
+      disk.device.read.bytes.rate_server_cmaui2:
+      - server_cmaui2
+      - disk.device.read.bytes.rate
+      attachment_cmaui_port_2:
+      - cmaui_port_2
+      - attachment
+      network.outgoing.packets.rate_cmaui_port_1:
+      - cmaui_port_1
+      - network.outgoing.packets.rate
+      network.outgoing.packets.rate_cmaui_port_2:
+      - cmaui_port_2
+      - network.outgoing.packets.rate
+      attachment_cmaui_port_1:
+      - cmaui_port_1
+      - attachment
+      disk.read.bytes_server_cmaui2:
+      - server_cmaui2
+      - disk.read.bytes
+      instance_server_cmaui2:
+      - server_cmaui2
+      - instance
+      disk.device.allocation_server_cmaui2:
+      - server_cmaui2
+      - disk.device.allocation
+      instance_server_cmaui1:
+      - server_cmaui1
+      - instance
+      disk.device.allocation_server_cmaui1:
+      - server_cmaui1
+      - disk.device.allocation
+      disk.read.bytes_server_cmaui1:
+      - server_cmaui1
+      - disk.read.bytes
+      disk.device.usage_server_cmaui1:
+      - server_cmaui1
+      - disk.device.usage
+      disk.device.usage_server_cmaui2:
+      - server_cmaui2
+      - disk.device.usage
+      disk.device.capacity_server_cmaui2:
+      - server_cmaui2
+      - disk.device.capacity
+      disk.device.capacity_server_cmaui1:
+      - server_cmaui1
+      - disk.device.capacity
+      disk.usage_server_cmaui2:
+      - server_cmaui2
+      - disk.usage
+      vcpus_server_cmaui1:
+      - server_cmaui1
+      - vcpus
+      vcpus_server_cmaui2:
+      - server_cmaui2
+      - vcpus
+      disk.usage_server_cmaui1:
+      - server_cmaui1
+      - disk.usage
+      endpoint_server_cmaui1:
+      - server_cmaui1
+      - endpoint
+      endpoint_server_cmaui2:
+      - server_cmaui2
+      - endpoint
+      cpu_util_server_cmaui1:
+      - server_cmaui1
+      - cpu_util
+      cpu_util_server_cmaui2:
+      - server_cmaui2
+      - cpu_util
+      network.incoming.bytes.rate_cmaui_port_1:
+      - cmaui_port_1
+      - network.incoming.bytes.rate
+      network.incoming.bytes.rate_cmaui_port_2:
+      - cmaui_port_2
+      - network.incoming.bytes.rate
+      disk.root.size_server_cmaui2:
+      - server_cmaui2
+      - disk.root.size
+      disk.write.requests.rate_server_cmaui2:
+      - server_cmaui2
+      - disk.write.requests.rate
+      disk.write.requests.rate_server_cmaui1:
+      - server_cmaui1
+      - disk.write.requests.rate
+      disk.device.latency_server_cmaui1:
+      - server_cmaui1
+      - disk.device.latency
+      network.outpoing.packets_cmaui_port_1:
+      - cmaui_port_1
+      - network.outpoing.packets
+      network.outpoing.packets_cmaui_port_2:
+      - cmaui_port_2
+      - network.outpoing.packets
+      disk.device.latency_server_cmaui2:
+      - server_cmaui2
+      - disk.device.latency
+      disk.device.iops_server_cmaui1:
+      - server_cmaui1
+      - disk.device.iops
+      disk.device.iops_server_cmaui2:
+      - server_cmaui2
+      - disk.device.iops
+      disk.ephemeral.size_server_cmaui2:
+      - server_cmaui2
+      - disk.ephemeral.size
+      disk.device.read.requests.rate_server_cmaui2:
+      - server_cmaui2
+      - disk.device.read.requests.rate
+      disk.ephemeral.size_server_cmaui1:
+      - server_cmaui1
+      - disk.ephemeral.size
+      disk.device.read.requests.rate_server_cmaui1:
+      - server_cmaui1
+      - disk.device.read.requests.rate
+      disk.device.read.bytes_server_cmaui2:
+      - server_cmaui2
+      - disk.device.read.bytes
+      disk.device.read.bytes_server_cmaui1:
+      - server_cmaui1
+      - disk.device.read.bytes
+    requirements:
+      dependency_server_cmaui1:
+      - server_cmaui1
+      - dependency
+      dependency_server_cmaui2:
+      - server_cmaui2
+      - dependency
+      dependency_cmaui_port_1:
+      - cmaui_port_1
+      - dependency
+      link_cmaui_port_2:
+      - cmaui_port_2
+      - link
+      link_cmaui_port_1:
+      - cmaui_port_1
+      - link
+      local_storage_server_cmaui2:
+      - server_cmaui2
+      - local_storage
+      dependency_cmaui_port_2:
+      - cmaui_port_2
+      - dependency
+      local_storage_server_cmaui1:
+      - server_cmaui1
+      - local_storage

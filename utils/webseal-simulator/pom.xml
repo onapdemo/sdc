@@ -1,0 +1,274 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openecomp.sdc</groupId>
+	<artifactId>webseal-simulator</artifactId>
+	<packaging>war</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<properties>
+		<jetty-version>9.2.10.v20150310</jetty-version>
+		<docker.tag>${project.version}-${maven.build.timestamp}</docker.tag>
+		<docker.latest.tag>${project.version}-latest</docker.latest.tag>
+		<!--maven-->
+		<maven.build.timestamp.format>yyyyMMdd'T'HHmm</maven.build.timestamp.format>
+		<nexus.proxy>https://nexus.onap.org</nexus.proxy>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging-api</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.9</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-proxy</artifactId>
+			<version>9.2.10.v20150310</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlets</artifactId>
+            <version>${jetty-version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Proxy servlet -->
+		<dependency>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+			<version>1.0.2</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+	<build>
+		<finalName>WSSimulator</finalName>
+		<plugins>
+			<!-- ================================================== -->
+			<!-- Set the JDK compiler version. -->
+			<!-- ================================================== -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<inherited>true</inherited>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+                <version>${jetty-version}</version>
+				<configuration>
+					<contextPath>/</contextPath>
+					<webApp>
+						<contextPath>/</contextPath>
+						<webInfIncludeJarPattern>.*/.*jersey-[^/]\.jar$</webInfIncludeJarPattern>
+					</webApp>
+					<war>WSSimulator.war</war>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+	
+	<repositories>
+		<!-- LF repositories -->
+		<repository>
+			<id>ecomp-releases</id>
+			<name>Release Repository</name>
+			<url>${nexus.proxy}/content/repositories/releases/</url>
+		</repository>
+		<repository>
+			<id>ecomp-staging</id>
+			<name>Staging Repository</name>
+			<url>${nexus.proxy}/content/repositories/staging/</url>
+		</repository>
+		<repository>
+			<id>ecomp-snapshots</id>
+			<name>Snapshots Repository</name>
+			<url>${nexus.proxy}/content/repositories/snapshots/</url>
+		</repository>
+		<repository>
+			<id>ecomp-public</id>
+			<name>Public Repository</name>
+			<url>${nexus.proxy}/content/repositories/public/</url>
+		</repository>
+		<!-- LF repositories END-->
+	</repositories>
+	
+	<profiles>
+		<profile>
+			<id>docker-staging</id>
+			<properties>
+				<docker.tag>${project.version}-STAGING-${maven.build.timestamp}</docker.tag>
+				<docker.latest.tag>${project.version}-STAGING-latest</docker.latest.tag>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>docker</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.0.2</version>
+						<executions>
+							<execution>
+								<id>copy-resources-simulator</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/sdc-simulator</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/target</directory>
+											<includes>
+												<include>WSSimulator.war</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-configurations-simulator</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/sdc-simulator/chef-repo/cookbooks/sdc-simulator/files/default</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources</directory>
+											<includes>
+												<include>logback.xml</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+
+
+					<plugin>
+						<groupId>io.fabric8</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
+						<version>0.23.0</version>
+
+						<configuration>
+							<verbose>true</verbose>
+							<apiVersion>1.23</apiVersion>
+							<registry>nexus3.onap.org:10001</registry>
+                            <authConfig>
+                                <pull>
+      					            <username>docker</username>
+      					            <password>docker</password>
+      				            </pull>
+    			            </authConfig>
+							<images>
+
+								<!-- Build simulator image -->
+								<image>
+									<name>openecomp/sdc-simulator</name>
+									<alias>sdc-simulator</alias>
+									<build>
+										<cleanup>try</cleanup>
+										<dockerFileDir>${basedir}\sdc-simulator</dockerFileDir>
+										<tags>
+											<tag>${docker.tag}</tag>
+											<tag>${docker.latest.tag}</tag>
+											<tag>1.1-STAGING-latest</tag>
+										</tags>
+									</build>
+								</image>
+							</images>
+						</configuration>
+						<executions>
+							<execution>
+								<id>clean-images</id>
+								<phase>pre-clean</phase>
+								<goals>
+									<goal>remove</goal>
+								</goals>
+								<configuration>
+								<removeAll>true</removeAll>
+								<image>openecomp/sdc-simulator</image>
+								</configuration>
+							</execution>
+
+							<execution>
+								<id>generate-images</id>
+								<phase>package</phase>
+								<goals>
+									<goal>build</goal>
+								</goals>
+							</execution>
+
+							<execution>
+                                <id>push-images</id>
+                                <phase>deploy</phase>
+                                <goals>
+									<goal>build</goal>
+									<goal>push</goal>
+                                </goals>
+                                <configuration>
+                                <image>openecomp/sdc-simulator</image>
+                                </configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

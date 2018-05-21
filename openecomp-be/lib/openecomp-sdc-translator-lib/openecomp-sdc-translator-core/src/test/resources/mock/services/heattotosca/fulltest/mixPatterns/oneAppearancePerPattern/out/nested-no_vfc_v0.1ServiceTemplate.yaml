@@ -1,0 +1,656 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0
+metadata:
+  template_name: nested-no_vfc_v0.1
+imports:
+- openecomp_heat_index:
+    file: openecomp-heat/_index.yml
+- GlobalSubstitutionTypes:
+    file: GlobalSubstitutionTypesServiceTemplate.yaml
+topology_template:
+  inputs:
+    server_group:
+      hidden: false
+      immutable: false
+      type: string
+    availabilityzone_name:
+      label: availabilityzone name
+      hidden: false
+      immutable: false
+      type: string
+      description: availabilityzone name
+    oam_net_gw:
+      label: CPS network gateway
+      hidden: false
+      immutable: false
+      type: string
+      description: CPS network gateway
+    pcm_image_name:
+      label: image name
+      hidden: false
+      immutable: false
+      type: string
+      description: PCRF CM image name
+    security_group_name:
+      label: security group name
+      hidden: false
+      immutable: false
+      type: string
+      description: the name of security group
+    cps_net_ip:
+      label: CPS network ip
+      hidden: false
+      immutable: false
+      type: string
+      description: CPS network ip
+    pcm_flavor_name:
+      label: PCRF CM flavor name
+      hidden: false
+      immutable: false
+      type: string
+      description: flavor name of PCRF CM instance
+    pcm_vol:
+      label: CPS Cluman Cinder Volume
+      hidden: false
+      immutable: false
+      type: string
+      description: CPS Cluman Cinder Volume
+    pcm_server_name:
+      label: PCRF CM server name
+      hidden: false
+      immutable: false
+      type: string
+      description: PCRF CM server name
+    cps_net_name:
+      label: CPS network name
+      hidden: false
+      immutable: false
+      type: string
+      description: CPS network name
+    cps_net_mask:
+      label: CPS network mask
+      hidden: false
+      immutable: false
+      type: string
+      description: CPS network mask
+    oam_net_ip:
+      label: OAM network ip
+      hidden: false
+      immutable: false
+      type: string
+      description: OAM network ip
+    oam_net_mask:
+      label: CPS network mask
+      hidden: false
+      immutable: false
+      type: string
+      description: CPS network mask
+    pcma_flavor_name:
+      hidden: false
+      immutable: false
+      type: string
+    oam_net_name:
+      label: OAM network name
+      hidden: false
+      immutable: false
+      type: string
+      description: OAM network name
+    pcma_server_name:
+      hidden: false
+      immutable: false
+      type: string
+    pcma_image_name:
+      hidden: false
+      immutable: false
+      type: string
+  node_templates:
+    abstract_pcma_server_1:
+      type: org.openecomp.resource.abstract.nodes.pcma_server_1
+      directives:
+      - substitutable
+      properties:
+        port_pcm_port_1_network_role_tag: cps
+        port_pcm_port_0_fixed_ips:
+        - ip_address:
+            get_input: cps_net_ip
+        vm_flavor_name:
+          get_input: pcma_flavor_name
+        port_pcm_port_0_security_groups:
+        - - get_input: security_group_name
+        compute_pcma_server_availability_zone:
+        - get_input: availabilityzone_name
+        vm_image_name:
+          get_input: pcma_image_name
+        port_pcm_port_0_network_role_tag: cps
+        port_pcm_port_1_network:
+        - get_input: oam_net_name
+        port_pcm_port_0_ip_requirements:
+        - ip_version: 4
+          ip_count_required:
+            is_required: true
+          floating_ip_count_required:
+            is_required: false
+        port_pcm_port_1_security_groups:
+        - - get_input: security_group_name
+        compute_pcma_server_config_drive:
+        - true
+        compute_pcma_server_user_data_format:
+        - RAW
+        port_pcm_port_0_network:
+        - get_input: cps_net_name
+        port_pcm_port_1_mac_requirements:
+          mac_count_required:
+            is_required: false
+        port_pcm_port_1_fixed_ips:
+        - ip_address:
+            get_input: oam_net_ip
+        compute_pcma_server_name:
+        - get_input: pcma_server_name
+        port_pcm_port_0_mac_requirements:
+          mac_count_required:
+            is_required: false
+        port_pcm_port_1_ip_requirements:
+        - ip_version: 4
+          ip_count_required:
+            is_required: true
+          floating_ip_count_required:
+            is_required: false
+        service_template_filter:
+          substitute_service_template: Nested_pcma_server_1ServiceTemplate.yaml
+          count: 1
+        index_value:
+          get_property:
+          - SELF
+          - service_template_filter
+          - index_value
+    abstract_pcma_server:
+      type: org.openecomp.resource.abstract.nodes.pcma_server
+      directives:
+      - substitutable
+      properties:
+        port_pcm_port_3_mac_requirements:
+          mac_count_required:
+            is_required: false
+        port_pcm_port_2_fixed_ips:
+        - ip_address:
+            get_input: cps_net_ip
+        vm_flavor_name:
+          get_input: pcma_flavor_name
+        port_pcm_port_3_security_groups:
+        - - get_input: security_group_name
+        compute_pcma_server_availability_zone:
+        - get_input: availabilityzone_name
+        vm_image_name:
+          get_input: pcma_image_name
+        port_pcm_port_2_security_groups:
+        - - get_input: security_group_name
+        port_pcm_port_3_ip_requirements:
+        - ip_version: 4
+          ip_count_required:
+            is_required: true
+          floating_ip_count_required:
+            is_required: false
+        port_pcm_port_2_mac_requirements:
+          mac_count_required:
+            is_required: false
+        port_pcm_port_3_network_role_tag: cps
+        compute_pcma_server_config_drive:
+        - true
+        port_pcm_port_3_fixed_ips:
+        - ip_address:
+            get_input: oam_net_ip
+        compute_pcma_server_user_data_format:
+        - RAW
+        port_pcm_port_2_network:
+        - get_input: cps_net_name
+        port_pcm_port_2_ip_requirements:
+        - ip_version: 4
+          ip_count_required:
+            is_required: true
+          floating_ip_count_required:
+            is_required: false
+        port_pcm_port_2_network_role_tag: cps
+        port_pcm_port_3_network:
+        - get_input: oam_net_name
+        compute_pcma_server_scheduler_hints:
+        - group:
+            get_input: server_group
+        compute_pcma_server_name:
+        - get_input: pcma_server_name
+        service_template_filter:
+          substitute_service_template: Nested_pcma_serverServiceTemplate.yaml
+          count: 1
+        index_value:
+          get_property:
+          - SELF
+          - service_template_filter
+          - index_value
+  groups:
+    nested-no_vfc_v0.1_group:
+      type: org.openecomp.groups.heat.HeatStack
+      properties:
+        heat_file: ../Artifacts/nested-no_vfc_v0.1.yaml
+        description: heat template that creates PCRF Cluman stack
+      members:
+      - abstract_pcma_server
+      - abstract_pcma_server_1
+  outputs:
+    portId:
+      value: pcm_port_3
+  substitution_mappings:
+    node_type: org.openecomp.resource.abstract.nodes.heat.nested-no_vfc_v0.1
+    capabilities:
+      network.incoming.packets.rate_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.incoming.packets.rate_pcma_server_pcm_port_0
+      network.incoming.packets.rate_pcm_port_3:
+      - abstract_pcma_server
+      - network.incoming.packets.rate_pcma_server_pcm_port_3
+      network.incoming.packets.rate_pcm_port_2:
+      - abstract_pcma_server
+      - network.incoming.packets.rate_pcma_server_pcm_port_2
+      network.incoming.packets.rate_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.incoming.packets.rate_pcma_server_pcm_port_1
+      network.outpoing.packets_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.outpoing.packets_pcma_server_pcm_port_1
+      disk.device.iops_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.iops_pcma_server
+      network.outpoing.packets_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.outpoing.packets_pcma_server_pcm_port_0
+      network.outpoing.packets_pcm_port_3:
+      - abstract_pcma_server
+      - network.outpoing.packets_pcma_server_pcm_port_3
+      network.outpoing.packets_pcm_port_2:
+      - abstract_pcma_server
+      - network.outpoing.packets_pcma_server_pcm_port_2
+      disk.device.iops_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.iops_pcma_server
+      disk.device.capacity_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.capacity_pcma_server
+      disk.device.capacity_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.capacity_pcma_server
+      disk.read.requests_server_pcma2:
+      - abstract_pcma_server
+      - disk.read.requests_pcma_server
+      disk.read.requests_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.read.requests_pcma_server
+      disk.write.requests.rate_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.write.requests.rate_pcma_server
+      disk.write.requests.rate_server_pcma2:
+      - abstract_pcma_server
+      - disk.write.requests.rate_pcma_server
+      memory_server_pcma2:
+      - abstract_pcma_server
+      - memory_pcma_server
+      memory_server_pcma1:
+      - abstract_pcma_server_1
+      - memory_pcma_server
+      disk.device.read.bytes.rate_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.read.bytes.rate_pcma_server
+      network.outgoing.bytes_pcm_port_3:
+      - abstract_pcma_server
+      - network.outgoing.bytes_pcma_server_pcm_port_3
+      disk.device.read.bytes.rate_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.read.bytes.rate_pcma_server
+      binding_pcm_port_3:
+      - abstract_pcma_server
+      - binding_pcma_server_pcm_port_3
+      disk.device.latency_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.latency_pcma_server
+      disk.device.usage_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.usage_pcma_server
+      network.incoming.bytes_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.incoming.bytes_pcma_server_pcm_port_0
+      disk.device.latency_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.latency_pcma_server
+      network.incoming.bytes_pcm_port_2:
+      - abstract_pcma_server
+      - network.incoming.bytes_pcma_server_pcm_port_2
+      network.incoming.bytes_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.incoming.bytes_pcma_server_pcm_port_1
+      disk.device.usage_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.usage_pcma_server
+      binding_pcm_port_0:
+      - abstract_pcma_server_1
+      - binding_pcma_server_pcm_port_0
+      binding_pcm_port_1:
+      - abstract_pcma_server_1
+      - binding_pcma_server_pcm_port_1
+      binding_pcm_port_2:
+      - abstract_pcma_server
+      - binding_pcma_server_pcm_port_2
+      network.incoming.bytes_pcm_port_3:
+      - abstract_pcma_server
+      - network.incoming.bytes_pcma_server_pcm_port_3
+      network.outgoing.packets.rate_pcm_port_3:
+      - abstract_pcma_server
+      - network.outgoing.packets.rate_pcma_server_pcm_port_3
+      disk.device.read.requests_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.read.requests_pcma_server
+      disk.device.read.requests_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.read.requests_pcma_server
+      network.outgoing.packets.rate_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.outgoing.packets.rate_pcma_server_pcm_port_0
+      network.outgoing.packets.rate_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.outgoing.packets.rate_pcma_server_pcm_port_1
+      disk.write.bytes_server_pcma2:
+      - abstract_pcma_server
+      - disk.write.bytes_pcma_server
+      disk.device.read.requests.rate_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.read.requests.rate_pcma_server
+      network.outgoing.packets.rate_pcm_port_2:
+      - abstract_pcma_server
+      - network.outgoing.packets.rate_pcma_server_pcm_port_2
+      disk.device.read.requests.rate_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.read.requests.rate_pcma_server
+      disk.write.bytes_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.write.bytes_pcma_server
+      feature_pcm_port_1:
+      - abstract_pcma_server_1
+      - feature_pcma_server_pcm_port_1
+      binding_server_pcma1:
+      - abstract_pcma_server_1
+      - binding_pcma_server
+      network.outgoing.bytes_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.outgoing.bytes_pcma_server_pcm_port_0
+      binding_server_pcma2:
+      - abstract_pcma_server
+      - binding_pcma_server
+      feature_pcm_port_0:
+      - abstract_pcma_server_1
+      - feature_pcma_server_pcm_port_0
+      network.outgoing.bytes_pcm_port_2:
+      - abstract_pcma_server
+      - network.outgoing.bytes_pcma_server_pcm_port_2
+      feature_pcm_port_3:
+      - abstract_pcma_server
+      - feature_pcma_server_pcm_port_3
+      feature_pcm_port_2:
+      - abstract_pcma_server
+      - feature_pcma_server_pcm_port_2
+      network.outgoing.bytes_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.outgoing.bytes_pcma_server_pcm_port_1
+      attachment_pcm_port_0:
+      - abstract_pcma_server_1
+      - attachment_pcma_server_pcm_port_0
+      attachment_pcm_port_1:
+      - abstract_pcma_server_1
+      - attachment_pcma_server_pcm_port_1
+      disk.write.bytes.rate_server_pcma2:
+      - abstract_pcma_server
+      - disk.write.bytes.rate_pcma_server
+      attachment_pcm_port_2:
+      - abstract_pcma_server
+      - attachment_pcma_server_pcm_port_2
+      disk.write.bytes.rate_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.write.bytes.rate_pcma_server
+      attachment_pcm_port_3:
+      - abstract_pcma_server
+      - attachment_pcma_server_pcm_port_3
+      disk.root.size_server_pcma2:
+      - abstract_pcma_server
+      - disk.root.size_pcma_server
+      disk.root.size_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.root.size_pcma_server
+      disk.iops_server_pcma2:
+      - abstract_pcma_server
+      - disk.iops_pcma_server
+      disk.iops_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.iops_pcma_server
+      disk.device.write.bytes.rate_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.write.bytes.rate_pcma_server
+      disk.device.write.bytes.rate_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.write.bytes.rate_pcma_server
+      disk.read.bytes_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.read.bytes_pcma_server
+      disk.read.bytes_server_pcma2:
+      - abstract_pcma_server
+      - disk.read.bytes_pcma_server
+      cpu_util_server_pcma1:
+      - abstract_pcma_server_1
+      - cpu_util_pcma_server
+      cpu_util_server_pcma2:
+      - abstract_pcma_server
+      - cpu_util_pcma_server
+      feature_server_pcma2:
+      - abstract_pcma_server
+      - feature_pcma_server
+      memory.usage_server_pcma2:
+      - abstract_pcma_server
+      - memory.usage_pcma_server
+      memory.usage_server_pcma1:
+      - abstract_pcma_server_1
+      - memory.usage_pcma_server
+      feature_server_pcma1:
+      - abstract_pcma_server_1
+      - feature_pcma_server
+      disk.read.bytes.rate_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.read.bytes.rate_pcma_server
+      disk.device.read.bytes_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.read.bytes_pcma_server
+      disk.device.read.bytes_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.read.bytes_pcma_server
+      endpoint_server_pcma2:
+      - abstract_pcma_server
+      - endpoint_pcma_server
+      disk.read.bytes.rate_server_pcma2:
+      - abstract_pcma_server
+      - disk.read.bytes.rate_pcma_server
+      endpoint_server_pcma1:
+      - abstract_pcma_server_1
+      - endpoint_pcma_server
+      cpu.delta_server_pcma1:
+      - abstract_pcma_server_1
+      - cpu.delta_pcma_server
+      cpu.delta_server_pcma2:
+      - abstract_pcma_server
+      - cpu.delta_pcma_server
+      host_server_pcma2:
+      - abstract_pcma_server
+      - host_pcma_server
+      host_server_pcma1:
+      - abstract_pcma_server_1
+      - host_pcma_server
+      disk.ephemeral.size_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.ephemeral.size_pcma_server
+      disk.ephemeral.size_server_pcma2:
+      - abstract_pcma_server
+      - disk.ephemeral.size_pcma_server
+      disk.device.write.requests.rate_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.write.requests.rate_pcma_server
+      disk.latency_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.latency_pcma_server
+      disk.latency_server_pcma2:
+      - abstract_pcma_server
+      - disk.latency_pcma_server
+      disk.device.write.requests.rate_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.write.requests.rate_pcma_server
+      scalable_server_pcma2:
+      - abstract_pcma_server
+      - scalable_pcma_server
+      scalable_server_pcma1:
+      - abstract_pcma_server_1
+      - scalable_pcma_server
+      disk.device.write.requests_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.write.requests_pcma_server
+      disk.device.write.requests_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.write.requests_pcma_server
+      instance_server_pcma2:
+      - abstract_pcma_server
+      - instance_pcma_server
+      disk.device.allocation_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.allocation_pcma_server
+      disk.device.allocation_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.allocation_pcma_server
+      instance_server_pcma1:
+      - abstract_pcma_server_1
+      - instance_pcma_server
+      os_server_pcma1:
+      - abstract_pcma_server_1
+      - os_pcma_server
+      os_server_pcma2:
+      - abstract_pcma_server
+      - os_pcma_server
+      disk.capacity_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.capacity_pcma_server
+      disk.capacity_server_pcma2:
+      - abstract_pcma_server
+      - disk.capacity_pcma_server
+      disk.write.requests_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.write.requests_pcma_server
+      disk.write.requests_server_pcma2:
+      - abstract_pcma_server
+      - disk.write.requests_pcma_server
+      network.outgoing.bytes.rate_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.outgoing.bytes.rate_pcma_server_pcm_port_1
+      network.incoming.packets_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.incoming.packets_pcma_server_pcm_port_0
+      network.outgoing.bytes.rate_pcm_port_2:
+      - abstract_pcma_server
+      - network.outgoing.bytes.rate_pcma_server_pcm_port_2
+      network.outgoing.bytes.rate_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.outgoing.bytes.rate_pcma_server_pcm_port_0
+      network.incoming.packets_pcm_port_3:
+      - abstract_pcma_server
+      - network.incoming.packets_pcma_server_pcm_port_3
+      disk.usage_server_pcma2:
+      - abstract_pcma_server
+      - disk.usage_pcma_server
+      network.incoming.packets_pcm_port_2:
+      - abstract_pcma_server
+      - network.incoming.packets_pcma_server_pcm_port_2
+      network.outgoing.bytes.rate_pcm_port_3:
+      - abstract_pcma_server
+      - network.outgoing.bytes.rate_pcma_server_pcm_port_3
+      disk.usage_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.usage_pcma_server
+      vcpus_server_pcma1:
+      - abstract_pcma_server_1
+      - vcpus_pcma_server
+      memory.resident_server_pcma1:
+      - abstract_pcma_server_1
+      - memory.resident_pcma_server
+      network.incoming.packets_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.incoming.packets_pcma_server_pcm_port_1
+      vcpus_server_pcma2:
+      - abstract_pcma_server
+      - vcpus_pcma_server
+      memory.resident_server_pcma2:
+      - abstract_pcma_server
+      - memory.resident_pcma_server
+      disk.device.write.bytes_server_pcma2:
+      - abstract_pcma_server
+      - disk.device.write.bytes_pcma_server
+      disk.allocation_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.allocation_pcma_server
+      disk.allocation_server_pcma2:
+      - abstract_pcma_server
+      - disk.allocation_pcma_server
+      disk.device.write.bytes_server_pcma1:
+      - abstract_pcma_server_1
+      - disk.device.write.bytes_pcma_server
+      cpu_server_pcma1:
+      - abstract_pcma_server_1
+      - cpu_pcma_server
+      network.incoming.bytes.rate_pcm_port_0:
+      - abstract_pcma_server_1
+      - network.incoming.bytes.rate_pcma_server_pcm_port_0
+      cpu_server_pcma2:
+      - abstract_pcma_server
+      - cpu_pcma_server
+      network.incoming.bytes.rate_pcm_port_3:
+      - abstract_pcma_server
+      - network.incoming.bytes.rate_pcma_server_pcm_port_3
+      network.incoming.bytes.rate_pcm_port_2:
+      - abstract_pcma_server
+      - network.incoming.bytes.rate_pcma_server_pcm_port_2
+      network.incoming.bytes.rate_pcm_port_1:
+      - abstract_pcma_server_1
+      - network.incoming.bytes.rate_pcma_server_pcm_port_1
+    requirements:
+      dependency_server_pcma2:
+      - abstract_pcma_server
+      - dependency_pcma_server
+      local_storage_server_pcma2:
+      - abstract_pcma_server
+      - local_storage_pcma_server
+      link_pcm_port_0:
+      - abstract_pcma_server_1
+      - link_pcma_server_pcm_port_0
+      link_pcm_port_1:
+      - abstract_pcma_server_1
+      - link_pcma_server_pcm_port_1
+      dependency_server_pcma1:
+      - abstract_pcma_server_1
+      - dependency_pcma_server
+      local_storage_server_pcma1:
+      - abstract_pcma_server_1
+      - local_storage_pcma_server
+      link_pcm_port_2:
+      - abstract_pcma_server
+      - link_pcma_server_pcm_port_2
+      link_pcm_port_3:
+      - abstract_pcma_server
+      - link_pcma_server_pcm_port_3
+      dependency_pcm_port_0:
+      - abstract_pcma_server_1
+      - dependency_pcma_server_pcm_port_0
+      dependency_pcm_port_3:
+      - abstract_pcma_server
+      - dependency_pcma_server_pcm_port_3
+      dependency_pcm_port_1:
+      - abstract_pcma_server_1
+      - dependency_pcma_server_pcm_port_1
+      dependency_pcm_port_2:
+      - abstract_pcma_server
+      - dependency_pcma_server_pcm_port_2

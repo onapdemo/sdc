@@ -1,0 +1,30 @@
+<loader display="isLoading" loader-type="composition-graph"></loader>
+<div class="sdc-composition-graph-wrapper" ng-class="{'view-only':isViewOnly}"
+     data-drop="true"
+     data-jqyoui-options="{accept: verifyDrop}"
+     data-jqyoui-droppable="{onDrop:'dropCallback', beforeDrop: 'beforeDropCallback'}">
+</div>
+
+<relation-menu relation-menu-directive-obj="relationMenuDirectiveObj" is-link-menu-open="isLinkMenuOpen"
+               create-relation="createLinkFromMenu" cancel="cancelRelationMenu()"></relation-menu>
+
+
+<div class="w-sdc-canvas-menu"
+     data-ng-show="linkMenuObject" ng-style="{left: linkMenuObject.position.x, top: linkMenuObject.position.y}"
+     id="relationMenu">
+
+    <div class="w-sdc-canvas-menu-content hand" data-ng-click="deleteRelation(linkMenuObject.link)">
+        <div class="w-sdc-canvas-menu-content-delete-button"></div>
+        Delete
+    </div>
+
+</div>
+
+    <div class="w-sdc-search-menu" data-ng-class="{'with-sidebar': withSidebar}">
+        <ng2-search-with-autocomplete [search-placeholder]="'Type to search'" [auto-complete-values]="componentInstanceNames" (search-changed)="getAutoCompleteValues($event)" (search-button-clicked)="highlightSearchMatches($event)"
+            [search-bar-class]="'composition-search'"></ng2-search-with-autocomplete>
+        <div class="zoom-icons sprite-new canvas-fit-all" data-ng-click="zoomAll()"></div>
+        <div class="zoom-icons sprite-new zoom-plus" data-ng-click="zoom(true)"></div>
+        <div class="zoom-icons sprite-new zoom-minus" data-ng-click="zoom(false)"></div>
+    </div>
+<!--<asset-popover ng-if="assetPopoverOpen" asset-popover-obj="assetPopoverObj" delete-asset="deleteNode(assetPopoverObj.nodeId)"></asset-popover>-->

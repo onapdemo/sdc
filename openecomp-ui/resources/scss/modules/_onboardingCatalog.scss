@@ -1,0 +1,24 @@
+$transitionLength: 0.6s;
+
+.catalog-view {
+	background-color: $background-gray;
+	overflow: hidden;
+	height: 100%;
+	@import "onboardingCatalog/onboardHeader";
+	@import "onboardingCatalog/catalogHeader";
+	@import "onboardingCatalog/vendorPageHeader";
+	@import "onboardingCatalog/catalogList";
+	.catalog-wrapper {
+		height: 100%;
+		overflow: auto;
+		.tab-separator {
+		  content: '';
+		  height: 25px;
+		  border-right: 1px solid $dark-gray;
+		}
+		.catalog-list {
+			overflow: hidden;
+			height: auto;
+		}
+	}
+}
